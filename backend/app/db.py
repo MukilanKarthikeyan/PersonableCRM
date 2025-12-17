@@ -1,17 +1,28 @@
+# backend/app/db.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.config import DATABASE_URL
 
-# SQLite local database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./crm.db"
-
+# Create SQLite engine
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL, 
+    connect_args={"check_same_thread": False}
 )
 
-# Each request will use a new session
+# Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
+# Base class for all models
 Base = declarative_base()
 
-#
+# Dependency for FastAPI routes
+def get_db():
+    """
+    Database session dependency.
+    Creates a new session for each request and closes it when done.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: personable-crm-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/crm.db:/app/crm.db
+    environment:
+      - LUX_API_KEY=${LUX_API_KEY}
+      - LUX_MODEL=${LUX_MODEL:-lux-thinker-1}
+      - DATABASE_URL=sqlite:///./crm.db
+      - DEBUG=${DEBUG:-True}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - crm-network
+
+  frontend:
+    build: ./frontend
+    container_name: personable-crm-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - crm-network
+
+networks:
+  crm-network:
+    driver: bridge

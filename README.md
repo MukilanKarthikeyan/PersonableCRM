@@ -1,389 +1,282 @@
 # PersonableCRM
-A personal CRM tool to build and  manage your network. never forget to reach out and find the msot relevant poeple
 
+A personal CRM system powered by Lux AI for intelligent people research and outreach management.
 
-┌─────────────────────────────┐
-│           Frontend          │
-│  (Next.js: Research UI)     │
-└──────────────┬──────────────┘
-               │ REST
-┌──────────────▼──────────────┐
-│          FastAPI            │
-│  - Agent Orchestrator       │
-│  - CRM API                  │
-│  - Lux Client               │
-└──────────────┬──────────────┘
-               │
-┌──────────────▼──────────────┐
-│           Lux API           │
-│  - Web Search               │
-│  - Scraping                 │
-│  - Extraction               │
-│  - Reasoning                │
-└──────────────┬──────────────┘
-               │
-┌──────────────▼──────────────┐
-│        SQLite DB            │
-│  Contacts / Sources / Logs  │
-└─────────────────────────────┘
+## Features
 
+- 🤖 **AI-Powered Research**: Use Lux (OpenAGI) to automatically discover and extract contact information
+- 👥 **Contact Management**: Store and organize people with rich metadata (affiliation, field, website)
+- 💬 **Conversation Tracking**: Keep track of email threads and outreach status
+- 🔍 **Smart Search**: Search contacts by name, email, affiliation, or field
+- 📊 **Research Tasks**: Monitor the status and results of AI research tasks
+- 🌐 **Source Tracking**: Know where each contact was discovered
 
-Below is a **clean, copy-pasteable, Windows 11–specific setup guide** that assumes **zero prior setup** beyond having a computer. This is written as if it will live in your repo as `README.md` and should work for **anyone who clones the repository**.
-
-I’ll be explicit about:
-
-* What to install
-* Where to install it
-* Exact commands (PowerShell)
-* Common Windows pitfalls
-
-No cloud infra, no Docker required for v0.
-
----
-
-# Lux CRM — Local Setup Guide (Windows 11)
-
-This guide walks you through setting up and running the **Lux-powered personal research CRM** locally on **Windows 11**, using only a **Lux API key**.
-
----
-
-## 0. System Requirements
-
-### Required
-
-* Windows 11 (64-bit)
-* Internet connection
-* Lux API key (from OpenAGI)
-
-### Recommended
-
-* 16 GB RAM
-* Chrome or Edge (Lux handles browsing internally)
-
----
-
-## 1. Install Required Tools
-
-### 1.1 Install Git
-
-1. Download Git for Windows:
-   👉 [https://git-scm.com/download/win](https://git-scm.com/download/win)
-2. Run the installer
-3. Accept defaults **except**:
-
-   * When asked about terminal: select **“Use Git from the Windows Command Prompt”**
-4. Finish installation
-
-Verify:
-
-```powershell
-git --version
-```
-
----
-
-### 1.2 Install Python 3.10+
-
-1. Download Python from:
-   👉 [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
-
-2. **IMPORTANT**:
-
-   * ✅ Check **“Add Python to PATH”**
-   * Choose Python **3.10 or 3.11**
-
-3. Install
-
-Verify:
-
-```powershell
-python --version
-```
-
-If this fails, restart your computer.
-
----
-
-### 1.3 Install Node.js (LTS)
-
-1. Download Node.js LTS:
-   👉 [https://nodejs.org/](https://nodejs.org/)
-
-2. Install with defaults
-
-Verify:
-
-```powershell
-node --version
-npm --version
-```
-
----
-
-## 2. Clone the Repository
-
-Open **PowerShell** (not Command Prompt):
-
-```powershell
-git clone https://github.com/YOUR_USERNAME/lux-crm.git
-cd lux-crm
-```
-
-Your folder should now look like:
+## Architecture
 
 ```
 lux-crm/
-├── backend/
-├── frontend/
-├── .env.example
-└── README.md
+├── backend/          # FastAPI + SQLAlchemy + Lux
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── db.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── lux/
+│   │   │   ├── client.py
+│   │   │   ├── agents.py
+│   │   │   └── tasks.py
+│   │   ├── services/
+│   │   │   ├── crm.py
+│   │   │   └── research.py
+│   │   └── routes/
+│   │       ├── contacts.py
+│   │       └── research.py
+│   └── requirements.txt
+│
+├── frontend/         # Next.js + TypeScript + Tailwind
+│   ├── app/
+│   │   ├── page.tsx
+│   │   ├── contacts/
+│   │   └── layout.tsx
+│   └── package.json
+│
+└── docker-compose.yml
 ```
 
----
+## Prerequisites
 
-## 3. Backend Setup (FastAPI + Lux)
+- Python 3.10+
+- Node.js 18+
+- Docker & Docker Compose (optional)
+- Lux API Key from OpenAGI
 
-### 3.1 Create Python Virtual Environment
+## Quick Start
 
-From the repo root:
+### 1. Clone and Setup
 
-```powershell
-cd backend
-python -m venv venv
+```bash
+git clone <your-repo>
+cd lux-crm
+cp .env.example .env
 ```
 
-Activate it:
+### 2. Configure Environment
 
-```powershell
-venv\Scripts\activate
-```
-
-You should now see `(venv)` in your terminal.
-
----
-
-### 3.2 Install Backend Dependencies
-
-```powershell
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If anything fails, re-run the command once.
-
----
-
-### 3.3 Configure Environment Variables
-
-Go back to repo root:
-
-```powershell
-cd ..
-```
-
-Create `.env` file:
-
-```powershell
-copy .env.example .env
-```
-
-Edit `.env` using Notepad:
-
-```powershell
-notepad .env
-```
-
-Add your Lux API key:
+Edit `.env` and add your Lux API key:
 
 ```env
 LUX_API_KEY=your_lux_api_key_here
+LUX_MODEL=lux-thinker-1
+DATABASE_URL=sqlite:///./crm.db
+DEBUG=True
 ```
 
-Save and close.
+### 3. Run with Docker (Recommended)
 
----
+```bash
+docker-compose up --build
+```
 
-### 3.4 Initialize Database
+This will start:
+- Backend API at `http://localhost:8000`
+- Frontend at `http://localhost:3000`
+- API docs at `http://localhost:8000/docs`
 
-The database is SQLite and auto-created on first run.
-No manual setup needed.
+### 4. Run Locally (Alternative)
 
----
-
-### 3.5 Start Backend Server
-
-```powershell
+**Backend:**
+```bash
 cd backend
-venv\Scripts\activate
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-You should see:
-
-```
-Uvicorn running on http://127.0.0.1:8000
-```
-
-Leave this terminal open.
-
----
-
-## 4. Frontend Setup (Next.js UI)
-
-Open **a new PowerShell window**.
-
-### 4.1 Navigate to Frontend
-
-```powershell
-cd lux-crm\frontend
-```
-
----
-
-### 4.2 Install Frontend Dependencies
-
-```powershell
+**Frontend:**
+```bash
+cd frontend
 npm install
-```
-
-This may take 1–2 minutes.
-
----
-
-### 4.3 Start Frontend
-
-```powershell
 npm run dev
 ```
 
-You should see:
+## Usage
 
-```
-Local: http://localhost:3000
-```
+### 1. Start a Research Task
 
----
+Visit `http://localhost:3000` and enter a research query like:
 
-## 5. Using the Application
+- "robotics professors at MIT"
+- "AI researchers working on computer vision"
+- "machine learning engineers at Google"
 
-### 5.1 Open UI
+The Lux agent will:
+1. Search the web for relevant people
+2. Visit their pages and extract contact info
+3. Validate and store results in your CRM
 
-Open browser:
+### 2. View Contacts
 
-```
-http://localhost:3000
-```
+Navigate to the Contacts page to see all discovered people. Each contact includes:
+- Name and email
+- Affiliation and field
+- Personal website
+- Source URL (where they were found)
 
----
+### 3. Track Conversations
 
-### 5.2 Run a Research Agent
+For each contact, you can:
+- Create conversation threads
+- Track email status (draft, sent, replied, follow-up)
+- Add notes and context
 
-1. Enter a query like:
+## API Endpoints
 
-   ```
-   Robotics PhD students working on SLAM
-   ```
+### Research
+- `POST /api/research` - Start a new research task (async)
+- `POST /api/research/sync` - Start a research task (synchronous)
+- `GET /api/research/tasks` - List all research tasks
+- `GET /api/research/tasks/{id}` - Get specific task details
 
-2. Click **Start Agent**
+### Contacts
+- `GET /api/contacts` - List all contacts
+- `GET /api/contacts/search?q=query` - Search contacts
+- `GET /api/contacts/{id}` - Get contact details
+- `POST /api/contacts` - Create contact manually
+- `PUT /api/contacts/{id}` - Update contact
+- `DELETE /api/contacts/{id}` - Delete contact
 
-3. Lux agent will:
+### Conversations
+- `POST /api/contacts/{id}/conversations` - Create conversation
+- `GET /api/contacts/{id}/conversations` - List conversations
+- `PATCH /api/conversations/{id}/status` - Update status
 
-   * Search the web
-   * Visit pages
-   * Extract people + emails
-   * Populate the local CRM
+Full API documentation available at: `http://localhost:8000/docs`
 
-⏳ This can take 30–120 seconds depending on query.
+## Database Schema
 
----
+### Contact
+- `id`, `name`, `email` (unique)
+- `affiliation`, `field`, `website`
+- `source_url`, `confidence`
+- `created_at`, `updated_at`
 
-### 5.3 View Results
+### Conversation
+- `id`, `contact_id`
+- `subject`, `body`, `status`
+- `sent_at`, `created_at`
 
-Navigate to:
+### ResearchSource
+- `id`, `contact_id`
+- `url`, `extracted_at`, `extraction_method`
 
-```
-http://localhost:3000/contacts
-```
+### ResearchTask
+- `id`, `query`, `status`
+- `results_count`, `error_message`
+- `created_at`, `completed_at`
 
-You should see:
+## Development
 
-* Names
-* Emails
-* Affiliations
-* Fields
-* Source URLs
-
----
-
-## 6. Common Windows Issues & Fixes
-
-### ❌ `python` not recognized
-
-**Fix**:
-
-* Reinstall Python
-* Ensure “Add Python to PATH” is checked
-* Restart computer
-
----
-
-### ❌ `uvicorn` not found
-
-**Fix**:
-
-```powershell
-pip install uvicorn
-```
-
-Ensure virtual environment is activated.
-
----
-
-### ❌ Frontend can’t reach backend
-
-Ensure:
-
-* Backend is running on port `8000`
-* Frontend uses `http://localhost:8000`
-
----
-
-## 7. Stopping the App
-
-To stop backend or frontend:
-
-```powershell
-Ctrl + C
+### Backend Testing
+```bash
+cd backend
+pytest
 ```
 
+### Adding New Agent Instructions
+
+Edit `backend/app/lux/agents.py` to customize:
+- Research instructions
+- Extraction logic
+- Enrichment behavior
+
+### Modifying Database Schema
+
+```bash
+cd backend
+# Create migration
+alembic revision --autogenerate -m "description"
+# Apply migration
+alembic upgrade head
+```
+
+## Production Deployment
+
+### Environment Variables
+
+```env
+LUX_API_KEY=<your-production-key>
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+DEBUG=False
+LOG_LEVEL=INFO
+```
+
+### Security Considerations
+
+1. **Never commit** your `.env` file
+2. Use **PostgreSQL** instead of SQLite in production
+3. Enable **HTTPS** for frontend
+4. Add **rate limiting** to API endpoints
+5. Implement **authentication** for multi-user scenarios
+
+## Legal & Ethical Considerations
+
+⚠️ **Important**: This tool is designed for professional outreach only.
+
+- Only extracts **publicly listed** contact information
+- Stores **source URLs** for transparency
+- Respects **robots.txt** during web scraping
+- Complies with **CAN-SPAM** and **GDPR** requirements
+
+**Best Practices:**
+- Use for academic/professional networking only
+- Always include opt-out mechanisms in emails
+- Respect privacy and consent
+- Don't scrape personal social media
+- Limit outreach frequency
+
+## Troubleshooting
+
+### Lux API Errors
+- Verify your API key is correct
+- Check OpenAGI service status
+- Review agent logs in backend console
+
+### Database Issues
+- Delete `crm.db` and restart to reset
+- Check file permissions
+- For production, use PostgreSQL
+
+### CORS Errors
+- Ensure backend is running on port 8000
+- Check CORS_ORIGINS in config.py
+- Verify frontend calls correct API URL
+
+## Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new features
+4. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Acknowledgments
+
+- Built with [FastAPI](https://fastapi.tiangolo.com/)
+- Powered by [Lux (OpenAGI)](https://openagi.com/)
+- Frontend with [Next.js](https://nextjs.org/)
+- UI styled with [Tailwind CSS](https://tailwindcss.com/)
+
+## Support
+
+For issues or questions:
+- Open an issue on GitHub
+- Check API docs at `/docs`
+- Review agent logs for debugging
+
 ---
 
-## 8. What This Setup Gives You
-
-✅ Fully local research CRM
-✅ Lux-powered autonomous agents
-✅ No cloud services required
-✅ SQLite-based persistent storage
-✅ UI-driven agent execution
-✅ Windows-native setup
-
----
-
-## 9. Recommended Next Steps (Optional)
-
-* Add email drafting agent
-* Add approval workflow
-* Add vector search
-* Add scheduling / refresh jobs
-* Package as Docker later
-
----
-
-If you want, next I can:
-
-* Convert this into a **one-command installer**
-* Add **Docker for Windows**
-* Add **agent progress streaming**
-* Or turn this into a **research-grade open-source release**
-
-Just say the word.
+**Built with ❤️ for better professional networking**

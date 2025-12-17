@@ -1,44 +1,27 @@
-# ----------------------------
-# Core Web Framework
-# ----------------------------
-fastapi==0.110.0
-uvicorn[standard]==0.27.1
+# Core FastAPI
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
 
-# ----------------------------
-# Environment & Config
-# ----------------------------
-python-dotenv==1.0.1
+# Database
+sqlalchemy==2.0.23
+alembic==1.12.1
 
-# ----------------------------
-# Database & ORM
-# ----------------------------
-sqlalchemy==2.0.27
-pydantic==2.6.1
+# Data validation
+pydantic==2.5.0
+pydantic[email]==2.5.0
 
-# ----------------------------
-# Async + Background Tasks
-# ----------------------------
-anyio==4.2.0
+# Environment variables
+python-dotenv==1.0.0
 
-# ----------------------------
-# HTTP / Utilities
-# ----------------------------
-httpx==0.27.0
-requests==2.31.0
+# OpenAGI Lux (adjust version as needed)
+oagi>=0.1.0
 
-# ----------------------------
-# Lux / OpenAGI SDK
-# (Replace name if Lux publishes under a different package)
-# ----------------------------
-openagi-lux==0.1.0
+# HTTP client
+httpx==0.25.2
 
-# ----------------------------
-# Parsing & Extraction Helpers
-# ----------------------------
-beautifulsoup4==4.12.3
-lxml==5.1.0
+# Logging and monitoring
+python-json-logger==2.0.7
 
-# ----------------------------
-# Logging & Debugging
-# ----------------------------
-rich==13.7.0
+# Testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
